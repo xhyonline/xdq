@@ -47,7 +47,7 @@ jobs:
         with:
           data: "{'subject':'项目发布','from':'${{ env.APP_NAME }} 构建通知','body':'发布结果 ${{ job.status }}','user':['383164014@qq.com']}"
           webhook_url: ${{ secrets.WebHookURL }}
-          options: "-H \"Accept: application/json\" -H \"Authorization: Bearer ${{ secrets.TOKEN }}\" -H \"x-request-type: internal\""
+          options: "-H 'Authorization: Bearer ${{ secrets.TOKEN }}' -H 'x-request-type: internal' "
 
 
 
