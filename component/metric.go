@@ -1,12 +1,13 @@
 package component
 
 import (
+	"net"
+	"net/http"
+
 	"github.com/xhyonline/xdq/configs"
 	"github.com/xhyonline/xutil/helper"
 	"github.com/xhyonline/xutil/logger"
 	"github.com/xhyonline/xutil/metrics"
-	"net"
-	"net/http"
 )
 
 // WithPProf 监控

@@ -10,7 +10,6 @@ import (
 
 	"github.com/xhyonline/xutil/sig"
 
-
 	"github.com/xhyonline/xdq/component"
 
 	"github.com/gin-gonic/gin"

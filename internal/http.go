@@ -2,8 +2,9 @@ package internal
 
 import (
 	"context"
-	"github.com/xhyonline/xutil/logger"
 	"net/http"
+
+	"github.com/xhyonline/xutil/logger"
 )
 
 type HTTPServer struct {

@@ -9,7 +9,7 @@ import (
 func InitRouter(engine *gin.Engine) {
 	// 推送数据
 	engine.POST("/push", controllers.Push)
-	// 消费数据 (删除)
+	// 消费数据
 	engine.POST("/delete", controllers.Push)
 	// 获取某主题下可以消费的数据
 	engine.GET("/get/ready/topic/:name", controllers.Push)

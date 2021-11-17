@@ -52,9 +52,9 @@ type dbCommon struct {
 }
 
 var Instance = &Config{
-	Redis: new(Redis),
-	MySQL: new(MySQL),
-	ETCD:  new(ETCD),
+	Redis:             new(Redis),
+	MySQL:             new(MySQL),
+	ETCD:              new(ETCD),
 	PrometheusGateWay: new(PrometheusGateWay),
 }
 
@@ -67,7 +67,6 @@ const (
 	// 生产环境读取配置文件的地址
 	productConfigPath = "/usr/local/go-micro/common/"
 )
-
 
 // Init 初始化配置文件信息
 func Init(options ...Option) {
