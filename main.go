@@ -26,7 +26,7 @@ func main() {
 	g.Use(middleware.Cors())
 	// 初始化路由
 	router.InitRouter(g)
-	// 启动 HTTP 服务
+	// 启动 HTTP 服务.
 	httpServer := &internal.HTTPServer{Server: &http.Server{Addr: ":8080", Handler: g}}
 	go httpServer.Run()
 	// 注册优雅退出
