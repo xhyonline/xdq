@@ -47,7 +47,7 @@ jobs:
         with:
           data: '{"subject":"${{ env.APP_NAME }} 项目发布结果 ${{ job.status }}","from":"来自 Github CI 集成","body":"集成结果通知","user":["383164014@qq.com"]}'
           webhook_url: ${{ secrets.WebHookURL }}
-          options: "-H 'Authorization: Bearer ${{ secrets.TOKEN }}' -H 'x-request-type: internal' -H 'Content-Type: application/json' "
+          options: '-H "Authorization: ${{ secrets.TOKEN }}" -H "x-request-type: internal"'
 
 
 
