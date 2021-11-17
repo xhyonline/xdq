@@ -45,9 +45,9 @@ jobs:
         uses: zzzze/webhook-trigger@master
         if: always() # 失败成功总会发送
         with:
-          data: '{"subject":"项目发布","from":"${{ env.APP_NAME }} 构建通知","body":"发布结果 ${{ job.status }}","user":["383164014@qq.com"]}'
+          data: '{"subject":"${{ env.APP_NAME }} 项目发布结果 ${{ job.status }} ","from":"来自 Github CI 集成","body":"","user":["383164014@qq.com"]}'
           webhook_url: ${{ secrets.WebHookURL }}
-          options: "-H 'Authorization: Bearer ${{ secrets.TOKEN }}' -H 'x-request-type: internal' "
+          options: '-H "Authorization: Bearer ${{ secrets.TOKEN }}" -H "x-request-type: internal" '
 
 
 
