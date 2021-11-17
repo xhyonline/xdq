@@ -27,7 +27,7 @@ func main() {
 	// 初始化路由
 	router.InitRouter(g)
 	// 启动 HTTP 服务
-	httpServer := &internal.HTTPServer{Server: &http.Server{Addr: ":8080", Handler: g}}
+	httpServer := &internal.HTTPServer{Server: &http.Server{Addr: "0.0.0.0:8081", Handler: g}}
 	go httpServer.Run()
 	// 注册优雅退出
 	ctx := sig.Get().RegisterClose(httpServer)
