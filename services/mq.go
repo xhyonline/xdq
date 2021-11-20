@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/xhyonline/xutil/logger"
 
@@ -15,14 +16,20 @@ const TopicSet = "topic"
 
 // PushParams
 type PushParams struct {
-	Topic       string `json:"topic"`
+	TopicConfig
+	Topic   string    `json:"topic"`
+	Message []Message `json:"message"`
+}
+
+type Message struct {
+	ID      string `json:"id"`
+	Content string `json:"content"`
+	Time    int    `json:"time"`
+}
+
+type TopicConfig struct {
 	CallbackURL string `json:"callback_url"`
 	Timeout     int32  `json:"timeout"`
-	Message     []struct {
-		ID      string `json:"id"`
-		Content string `json:"content"`
-		Time    int    `json:"time"`
-	} `json:"message"`
 }
 
 // Check
@@ -81,14 +88,49 @@ func Push(data *PushParams) error {
 		return err
 	}
 	// 写 bucket
-	if err := client.Kv.ZAdd(data.Topic, members...).Err(); err != nil {
+	if err := client.Kv.ZAdd(GetScanBucketName(data.Topic), members...).Err(); err != nil {
 		logger.Errorf("zadd 失败 %s payload %s", err, string(payload))
 		return err
 	}
 	return nil
 }
 
-// GetTopics 获取主题
-func GetTopics() {
+func GetScanBucketName(topic string) string {
+	return "bucket:" + topic
+}
 
+func GetReadyListName(topic string) string {
+	return "ready:" + topic
+}
+
+func GetTopicConfig(topic string) *TopicConfig {
+	fields := []string{
+		"callback", "timeout",
+	}
+	cmd := component.Instance.Redis.Kv.HMGet(topic, fields...)
+	if cmd.Err() != nil {
+		return nil
+	}
+	// nolint
+	if len(cmd.Val()) < 2 {
+		logger.Errorf("获取配置信息数据错误 %+v", cmd.Val())
+		return nil
+	}
+	timeout := cmd.Val()[1].(string)
+	t, _ := strconv.ParseInt(timeout, 10, 32)
+	return &TopicConfig{
+		CallbackURL: cmd.Val()[0].(string),
+		Timeout:     int32(t),
+	}
+}
+
+// GetTopics 获取主题
+func GetTopics() []string {
+	// 获取所有的主题
+	cmd := component.Instance.Redis.Kv.SMembers(TopicSet)
+	if cmd.Err() != nil {
+		logger.Errorf("scan 扫描时获取所有主题失败")
+		return nil
+	}
+	return cmd.Val()
 }

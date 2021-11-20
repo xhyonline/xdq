@@ -3,6 +3,8 @@ package main
 import (
 	"net/http"
 
+	"github.com/xhyonline/xdq/cron"
+
 	"github.com/xhyonline/xdq/configs"
 	"github.com/xhyonline/xdq/internal"
 	"github.com/xhyonline/xdq/middleware"
@@ -28,6 +30,8 @@ func main() {
 	// 启动 HTTP 服务
 	httpServer := &internal.HTTPServer{Server: &http.Server{Addr: "0.0.0.0:8081", Handler: g}}
 	go httpServer.Run()
+	// 初始化定时器
+	go cron.Init()
 	// 注册优雅退出
 	ctx := sig.Get().RegisterClose(httpServer)
 	<-ctx.Done()

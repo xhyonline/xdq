@@ -1,7 +1,7 @@
 [redis]
-host = ""
+host = "39.96.14.232"
 port = 6379
-password = ""
+password = "zxc86506859"
 max_connect = 10
 idle_connect= 1
 # 默认 0 号数据库

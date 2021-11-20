@@ -15,16 +15,16 @@ import (
 func Push(context *gin.Context) {
 	body, err := ioutil.ReadAll(context.Request.Body)
 	if err != nil {
-		context.JSON(http.StatusOK, g.R(library.Error, "参数错误", nil))
+		context.JSON(http.StatusOK, g.R(library.Error, "参数错误"+err.Error(), nil))
 		return
 	}
 	params := new(services.PushParams)
 	if err := json.Unmarshal(body, params); err != nil {
-		context.JSON(http.StatusOK, g.R(library.Error, "参数错误", nil))
+		context.JSON(http.StatusOK, g.R(library.Error, "参数错误"+err.Error(), nil))
 		return
 	}
 	if err := services.Push(params); err != nil {
-		context.JSON(http.StatusOK, g.R(library.Error, "参数错误", nil))
+		context.JSON(http.StatusOK, g.R(library.Error, "参数错误"+err.Error(), nil))
 		return
 	}
 	context.JSON(http.StatusOK, g.R(library.Success, "", nil))
