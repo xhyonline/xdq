@@ -1,6 +1,7 @@
 # xdq 基于 Redis 与 Go 实现的延迟队列
 
 ## 特性
+
 1. 开箱即用
 2. 秒级延迟
 3. 消费数据时使用 HTTP 请求回调通知
@@ -14,6 +15,7 @@
 ```
 
 配置内容
+
 ```
 [redis]
 host = ""
@@ -24,6 +26,7 @@ db = 0
 ```
 
 ### 一、推送延迟数据
+
 请求地址:`http://ip:port/push`
 
 请求方式:`POST`
@@ -69,6 +72,7 @@ Content-Type:`application/json`
 通知方法:`HTTP` 请求`POST`
 
 请求体示例如下:
+
 ```
 {
 	"topic": "my_topic",
@@ -84,6 +88,7 @@ Content-Type:`application/json`
 	"count": 2
 }
 ```
+
 参数说明:
 
 | 参数    | 类型   | 说明                             |
@@ -148,6 +153,7 @@ Content-Type:`application/json`
 示例:`http://ip:port/get/topic/:name/my_topic`
 
 响应示例(消息 wait_message 将根据 `time` 字段升序排列)
+
 ```
 {
     "code": 0,
@@ -170,7 +176,8 @@ Content-Type:`application/json`
     "message": ""
 }
 ```
-请注意
+
+请注意,该操作将会返回该主题下所有等待被消费的数据,当数据量大的时候,请谨慎操作
 
 
 

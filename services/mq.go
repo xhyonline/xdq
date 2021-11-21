@@ -116,8 +116,7 @@ func GetTopicConfig(topic string) *TopicConfig {
 	if cmd.Err() != nil {
 		return nil
 	}
-	// nolint
-	if len(cmd.Val()) < 2 {
+	if len(cmd.Val()) < 2 { // nolint
 		logger.Errorf("获取配置信息数据错误 %+v", cmd.Val())
 		return nil
 	}
