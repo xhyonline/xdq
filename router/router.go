@@ -9,12 +9,10 @@ import (
 func InitRouter(engine *gin.Engine) {
 	// 推送数据
 	engine.POST("/push", controllers.Push)
-	// 消费数据
-	engine.POST("/delete", controllers.Push)
-	// 获取某主题下可以消费的数据
-	engine.GET("/get/ready/topic/:name", controllers.Push)
-	// 获取某主题下所有的数据
-	engine.GET("/get/topic/:name", controllers.Push)
-	// 获取所有主题信息
-	engine.GET("/get/topics", controllers.Push)
+	// 删除主题
+	engine.GET("/delete/:name", controllers.DeleteTopic)
+	// 获取所有主题名
+	engine.GET("/get/topics", controllers.GetTopic)
+	// 获取某主题下等待被消费的数据
+	engine.GET("/get/topic/:name", controllers.GetWaitDataByTopic)
 }

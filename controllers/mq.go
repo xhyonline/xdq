@@ -24,13 +24,34 @@ func Push(context *gin.Context) {
 		return
 	}
 	if err := services.Push(params); err != nil {
-		context.JSON(http.StatusOK, g.R(library.Error, "参数错误"+err.Error(), nil))
+		context.JSON(http.StatusOK, g.R(library.Error, err.Error(), nil))
 		return
 	}
 	context.JSON(http.StatusOK, g.R(library.Success, "", nil))
 }
 
-// Get
-func Get(context *gin.Context) {
+// DeleteTopic 删除主题
+func DeleteTopic(context *gin.Context) {
+	topic := context.Param("name")
+	if err := services.DeleteTopic(topic); err != nil {
+		context.JSON(http.StatusOK, g.R(library.Error, "删除失败"+err.Error(), nil))
+		return
+	}
+	context.JSON(http.StatusOK, g.R(library.Success, "", nil))
+}
 
+// GetTopic 获取主题
+func GetTopic(context *gin.Context) {
+	context.JSON(http.StatusOK, g.R(library.Success, "", services.GetTopics()))
+}
+
+// GetWaitDataByTopic 获取等待被消费的数据
+func GetWaitDataByTopic(context *gin.Context) {
+	topic := context.Param("name")
+	detail, err := services.GetWaitDataByTopic(topic)
+	if err != nil {
+		context.JSON(http.StatusOK, g.R(library.Error, err.Error(), nil))
+		return
+	}
+	context.JSON(http.StatusOK, g.R(library.Success, "", detail))
 }

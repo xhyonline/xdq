@@ -75,7 +75,7 @@ func ConsumeReadyJob() {
 			}
 			var flag = false
 			for {
-				var n int64 = 1
+				var n int64 = 5000
 				ready := GetReadyListName(topic)
 				readyCmd := client.LRange(ready, 0, n-1)
 				if readyCmd.Err() != nil {
@@ -102,14 +102,20 @@ func ConsumeReadyJob() {
 					}
 					messages = append(messages, item)
 				}
-				// 回到失败等着下一次
+				// 如果失败,等待下一次重试
 				if !CallBack(cfg.CallbackURL, topic, messages, time.Duration(cfg.Timeout)) {
-					break
+					return
 				}
-				// TODO 删除业务数据
-				client.LTrim(ready, n, -1)
+				if err := client.LTrim(ready, n, -1).Err(); err != nil {
+					logger.Errorf("回调成功,但删除准备队列失败 主题:%s 业务ID:%+v", topic, readyCmd.Val())
+					return
+				}
+				// 删除业务数据
+				if err := client.HDel(topic, readyCmd.Val()...).Err(); err != nil {
+					logger.Errorf("回调成功,但删除业务数据失败 主题:%s 业务ID:%+v", topic, readyCmd.Val())
+				}
 				if flag {
-					break
+					return
 				}
 			}
 		}(topic)

@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/xhyonline/xutil/logger"
@@ -12,7 +13,7 @@ import (
 	"github.com/xhyonline/xdq/component"
 )
 
-const TopicSet = "topic"
+const TopicSet = "topic-set-by-xhyonline"
 
 // PushParams
 type PushParams struct {
@@ -104,10 +105,14 @@ func GetReadyListName(topic string) string {
 }
 
 func GetTopicConfig(topic string) *TopicConfig {
+	client := component.Instance.Redis.Kv
 	fields := []string{
 		"callback", "timeout",
 	}
-	cmd := component.Instance.Redis.Kv.HMGet(topic, fields...)
+	if client.Exists(topic).Val() == 0 {
+		return nil
+	}
+	cmd := client.HMGet(topic, fields...)
 	if cmd.Err() != nil {
 		return nil
 	}
@@ -117,7 +122,7 @@ func GetTopicConfig(topic string) *TopicConfig {
 		return nil
 	}
 	timeout := cmd.Val()[1].(string)
-	t, _ := strconv.ParseInt(timeout, 10, 32)
+	t, _ := strconv.ParseInt(timeout, 10, 32) // nolint
 	return &TopicConfig{
 		CallbackURL: cmd.Val()[0].(string),
 		Timeout:     int32(t),
@@ -129,8 +134,67 @@ func GetTopics() []string {
 	// 获取所有的主题
 	cmd := component.Instance.Redis.Kv.SMembers(TopicSet)
 	if cmd.Err() != nil {
-		logger.Errorf("scan 扫描时获取所有主题失败")
+		logger.Errorf("scan 扫描时获取所有主题失败 %s", cmd.Err())
 		return nil
 	}
 	return cmd.Val()
+}
+
+// DeleteTopic 删除主题
+func DeleteTopic(topic string) error {
+	client := component.Instance.Redis.Kv
+	if err := client.SRem(TopicSet, topic).Err(); err != nil {
+		logger.Errorf("删除主题失败 %s", err)
+		return fmt.Errorf("删除主题失败 %s", err)
+	}
+	if err := client.Del(GetReadyListName(topic), GetScanBucketName(topic), topic).Err(); err != nil {
+		logger.Errorf("删除主题失败 %s", err)
+		return fmt.Errorf("删除主题失败 %s", err)
+	}
+	return nil
+}
+
+// TopicDetail 主题详情
+type TopicDetail struct {
+	TopicConfig
+	WaitMessage []*Message `json:"wait_message"`
+}
+
+// GetWaitDataByTopic 获取正在等待被消费的数据
+func GetWaitDataByTopic(topic string) (*TopicDetail, error) {
+	client := component.Instance.Redis.Kv
+	resp := &TopicDetail{
+		TopicConfig: TopicConfig{},
+		WaitMessage: make([]*Message, 0),
+	}
+	if client.Exists(topic).Val() == 0 {
+		return resp, nil
+	}
+	cmd := client.HGetAll(topic)
+	if cmd.Err() != nil {
+		return resp, cmd.Err()
+	}
+	for k, item := range cmd.Val() {
+		if k == "callback" {
+			resp.TopicConfig.CallbackURL = item
+			continue
+		}
+		if k == "timeout" {
+			timeout, err := strconv.ParseInt(item, 10, 32) // nolint
+			if err != nil {
+				return resp, err
+			}
+			resp.TopicConfig.Timeout = int32(timeout)
+			continue
+		}
+		tmp := new(Message)
+		if err := json.Unmarshal([]byte(item), tmp); err != nil {
+			return resp, err
+		}
+		resp.WaitMessage = append(resp.WaitMessage, tmp)
+	}
+	sort.Slice(resp.WaitMessage, func(i, j int) bool {
+		return resp.WaitMessage[i].Time < resp.WaitMessage[j].Time
+	})
+	return resp, nil
 }
