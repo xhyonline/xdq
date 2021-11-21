@@ -25,6 +25,20 @@ password = ""
 db = 0
 ```
 
+安装:请自行安装 Golang 环境 支持Go mod
+
+Go 1.16 版本以上直接执行以下命令进行安装
+
+`go install -d github.com/xhyonline/xdq@main`
+
+安装后直接使用命令 `xdq` 进行启动
+
+不支持 `go mod` 的版本请自行下载,在根目录下进行 `go build` 操作 
+
+启动方式:您可以直接用 supervisor 管理您的 go 进程,或者使用 ./xdq 的形式启动
+
+他将启动在 8081 端口
+
 ### 一、推送延迟数据
 
 请求地址:`http://ip:port/push`
